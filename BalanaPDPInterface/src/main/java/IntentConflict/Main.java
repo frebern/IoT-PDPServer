@@ -60,7 +60,6 @@ public class Main {
         if ((console = new Scanner(System.in)) != null){
         	System.out.print("Who want to ride car? (father:fred, mother:monica, son:sam, daughter:diana) : ");
             who = console.nextLine();
-            console.close();
             if(who == null || who.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
                 return;
