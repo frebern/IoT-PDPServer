@@ -32,7 +32,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/frebern/Desktop/balana-core.jar"/>
-	<classpathentry kind="lib" path="C:/Users/frebern/Desktop/balana-util.jar"/>
+	<classpathentry kind="lib" path="libs/balana-core.jar"/>
+	<classpathentry kind="lib" path="libs/balana-util.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
