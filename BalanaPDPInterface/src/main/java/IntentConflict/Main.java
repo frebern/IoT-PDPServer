@@ -34,7 +34,6 @@ import org.wso2.balana.xacml3.Advice;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -61,6 +60,7 @@ public class Main {
         if ((console = new Scanner(System.in)) != null){
         	System.out.print("Who want to ride car? (father:fred, mother:monica, son:sam, daughter:diana) : ");
             who = console.nextLine();
+            console.close();
             if(who == null || who.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
                 return;
@@ -92,6 +92,7 @@ public class Main {
         	}
             
         }
+        
 
         
         String request = createXACMLRequest(who, assist, hour, min);
