@@ -59,7 +59,7 @@ public class SampleAttributeFinderModule extends AttributeFinderModule{
     }
 
     @Override
-    public Set getSupportedIds() {
+    public Set<String> getSupportedIds() {
         Set<String> ids = new HashSet<String>();
         ids.add("http://selab.hanayng.ac.kr/id/role");
         return ids;   

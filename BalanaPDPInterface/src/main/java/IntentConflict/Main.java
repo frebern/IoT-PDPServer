@@ -34,7 +34,6 @@ import org.wso2.balana.xacml3.Advice;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -92,6 +91,7 @@ public class Main {
         	}
             
         }
+        
 
         
         String request = createXACMLRequest(who, assist, hour, min);

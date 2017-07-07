@@ -38,12 +38,22 @@
 			</AdviceExpression>
 		</AdviceExpressions>	
 	</Rule>
-	<Rule Effect="Permit" RuleId="father-assist">
+	<Rule Effect="Deny" RuleId="father-assist">
 		<Condition>
-			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-				<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">father</AttributeValue>
-				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-					<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">father</AttributeValue>
+						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+							<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+						</Apply>
+					</Apply>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mother</AttributeValue>
+						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+							<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+						</Apply>
+					</Apply>
 				</Apply>
 			</Apply>
 		</Condition>
@@ -59,45 +69,7 @@
     	<AdviceExpressions>
 			<AdviceExpression AdviceId="permit-time-range-advice" AppliesTo="Permit">
 				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
-						Permit: You can start car only between 9 and 16 o'clock.
-					<!--
-					{
-						conditions: [ 
-							{
-								function: "or", 
-								param:[
-									{
-										function: "integer-less-than", 
-										param: [
-											9,
-					</AttributeValue></AttributeAssignmentExpression>
-					<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/hour" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
-					</AttributeAssignmentExpression>
-					<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">											
-										]
-									},{
-										function: "integer-greater-than",
-										param: [
-											16,
-					</AttributeValue></AttributeAssignmentExpression>
-					<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/hour" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#integer" MustBePresent="true"/>
-					</AttributeAssignmentExpression>
-					<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
-										] 
-									}
-								]
-							}
-						],
-						effect: "Permit",
-						advice: "Permit: You can start car only between 9 and 16 o'clock."
-					}-->
-					</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: You can start car only between 9 and 16 o'clock.</AttributeValue>
 				</AttributeAssignmentExpression>
 					
 			</AdviceExpression>
