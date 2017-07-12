@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package IntentConflict;
+package IntentConflictExample;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,6 +62,7 @@ public class Main {
             who = console.nextLine();
             if(who == null || who.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
+                console.close();
                 return;
             }
 
@@ -69,6 +70,7 @@ public class Main {
             assist = console.nextLine();
             if(assist == null || assist.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
+                console.close();
                 return;
             }
             
@@ -76,6 +78,7 @@ public class Main {
             String time = console.nextLine();
             if(assist == null || assist.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
+                console.close();
                 return;
             }
             
@@ -83,12 +86,15 @@ public class Main {
         		hour = Integer.parseInt(time);
         		if(hour<0 || hour>=24){
         			System.err.println("\nInvalid hour range (0~23)\n");
+        			console.close();
         			return;
         		}
         	}catch(NumberFormatException e){
         		System.err.println("\nHour must be integer\n");
+        		console.close();
         		return;
         	}
+        	console.close();
             
         }
         
@@ -135,7 +141,8 @@ public class Main {
 
         try{
             // using file based policy repository. so set the policy location as system property
-            String policyLocation = (new File(".")).getCanonicalPath() + File.separator + "resources";
+        	String sep = File.separator;
+            String policyLocation = (new File(".")).getCanonicalPath() + sep + "resources" + sep + "IntentConflictExamplePolicies";
             System.setProperty(FileBasedPolicyFinderModule.POLICY_DIR_PROPERTY, policyLocation);
         } catch (IOException e) {
             System.err.println("Can not locate policy repository");
@@ -195,31 +202,31 @@ public class Main {
 
     public static String createXACMLRequest(String who, String assist, int hour, int min){
     	
-        return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"true\" ReturnPolicyIdList=\"true\">\n" +
+        return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"true\" ReturnPolicyIdList=\"false\">\n" +
         			/* Action (start)*/
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">\n" +
-                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"true\">\n" +
+                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"false\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + "start" + "</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +
                 	/* Subject (who) */
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\">\n" +
-                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"true\">\n" +
+                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"false\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + who +"</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +
                 	/* Resource (car) */
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\">\n" +
-            			"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"true\">\n" +
+            			"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"false\">\n" +
             				"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + "car" + "</AttributeValue>\n" +
             			"</Attribute>\n" +
             		"</Attributes>\n" +
             		/* Environments (assist, hour) */
                 	"<Attributes Category=\"http://selab.hanyang.ac.kr/category\">\n" +
-                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/assist\" IncludeInResult=\"true\">\n" +
+                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/assist\" IncludeInResult=\"false\">\n" +
         					"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + assist + "</AttributeValue>\n" +
         				"</Attribute>\n" +
-                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/hour\" IncludeInResult=\"true\">\n" +
+                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/hour\" IncludeInResult=\"false\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#integer\">" + hour + "</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +

@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package IntentConflict;
+package IntentConflictExample;
 
 import org.wso2.balana.attr.AttributeValue;
 import org.wso2.balana.attr.BagAttribute;
