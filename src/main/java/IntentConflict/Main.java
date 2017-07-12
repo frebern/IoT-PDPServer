@@ -58,7 +58,7 @@ public class Main {
 
         //Input Params (userName, productId, productAmount)
         if ((console = new Scanner(System.in)) != null){
-        	System.out.print("Who want to ride car? (father:fred, mother:monica, son:sam, daughter:diana) : ");
+        	System.out.print("Who want to start the car? (father:fred, mother:monica, son:sam, daughter:diana) : ");
             who = console.nextLine();
             if(who == null || who.trim().length() < 1 ){
                 System.err.println("\nInput can not be empty\n");
@@ -195,31 +195,31 @@ public class Main {
 
     public static String createXACMLRequest(String who, String assist, int hour, int min){
     	
-        return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"false\" ReturnPolicyIdList=\"false\">\n" +
+        return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"true\" ReturnPolicyIdList=\"true\">\n" +
         			/* Action (start)*/
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">\n" +
-                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"false\">\n" +
+                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"true\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + "start" + "</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +
                 	/* Subject (who) */
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\">\n" +
-                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"false\">\n" +
+                		"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"true\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + who +"</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +
                 	/* Resource (car) */
                 	"<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\">\n" +
-            			"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"false\">\n" +
+            			"<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"true\">\n" +
             				"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + "car" + "</AttributeValue>\n" +
             			"</Attribute>\n" +
             		"</Attributes>\n" +
             		/* Environments (assist, hour) */
                 	"<Attributes Category=\"http://selab.hanyang.ac.kr/category\">\n" +
-                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/assist\" IncludeInResult=\"false\">\n" +
+                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/assist\" IncludeInResult=\"true\">\n" +
         					"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + assist + "</AttributeValue>\n" +
         				"</Attribute>\n" +
-                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/hour\" IncludeInResult=\"false\">\n" +
+                		"<Attribute AttributeId=\"http://selab.hanyang.ac.kr/id/hour\" IncludeInResult=\"true\">\n" +
                 			"<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#integer\">" + hour + "</AttributeValue>\n" +
                 		"</Attribute>\n" +
                 	"</Attributes>\n" +

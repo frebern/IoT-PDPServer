@@ -90,7 +90,7 @@ public class SampleAttributeFinderModule extends AttributeFinderModule{
         }
 
         if (roleName != null) {
-        	//아들 bob은 가족이면서도, father, mother, son, daughter이라는 두개의 역할을 가질 수 있다.
+        	//아들 sam은 가족이면서도, son이라는 두개의 역할을 가질 수 있다.
         	attributeValues.add(new StringAttribute("family"));
             attributeValues.add(new StringAttribute(roleName));
         }

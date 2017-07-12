@@ -33,45 +33,41 @@
 		<AdviceExpressions>
 			<AdviceExpression AdviceId="deny-time-range-advice" AppliesTo="Deny">
 				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: You can start car only between 9 and 16 o'clock.</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: Son can start car only between 9 and 16 o'clock.</AttributeValue>
 				</AttributeAssignmentExpression>
 			</AdviceExpression>
 		</AdviceExpressions>	
 	</Rule>
-	<Rule Effect="Deny" RuleId="father-assist">
+	<Rule Effect="Deny" RuleId="parent-assist">
 		<Condition>
 			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
-				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
-					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">father</AttributeValue>
-						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-							<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-						</Apply>
-					</Apply>
-					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">mother</AttributeValue>
-						<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-							<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-						</Apply>
+				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fred</AttributeValue>
+					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
 					</Apply>
 				</Apply>
 			</Apply>
 		</Condition>
 		<AdviceExpressions>
-			<AdviceExpression AdviceId="permit-assist-advice" AppliesTo="Permit">
+			<AdviceExpression AdviceId="deny-assist-advice" AppliesTo="Deny">
 				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: Father is sit in the passenger seat.</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: Father/Mother have to sit in the passenger seat.</AttributeValue>
 				</AttributeAssignmentExpression>
 			</AdviceExpression>
 		</AdviceExpressions>
 	</Rule>
     <Rule RuleId="permit-rule" Effect="Permit">
     	<AdviceExpressions>
+			<AdviceExpression AdviceId="permit-assist-advice" AppliesTo="Permit">
+				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: Father/Mother is sitting in the passenger seat.</AttributeValue>
+				</AttributeAssignmentExpression>
+			</AdviceExpression>
 			<AdviceExpression AdviceId="permit-time-range-advice" AppliesTo="Permit">
 				<AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: You can start car only between 9 and 16 o'clock.</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Permit: Son starts car between 9 and 16 o'clock.</AttributeValue>
 				</AttributeAssignmentExpression>
-					
 			</AdviceExpression>
 		</AdviceExpressions>
     </Rule>
