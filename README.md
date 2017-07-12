@@ -2,19 +2,19 @@
 
 ## Develop PDP, PAP Server, manage documents
 
-## Member: ¾ÈÀ±±Ù, ÀÌ±âÂù, ¿À¿ëÅÃ, ÀÌÇÐÁø, ¿ÀÁö°­(Wu Zhiqian)
+## Member: ì•ˆìœ¤ê·¼, ì´ê¸°ì°¬, ì˜¤ìš©íƒ, ì´í•™ì§„, ì˜¤ì§€ê°•(Wu Zhiqian)
 
-## ÀÛ¾÷ ¹æ½Ä 
+## ìž‘ì—… ë°©ì‹ 
 
-1. °¢ÀÚ Fork ¶°°©´Ï´Ù.
-2. ÀÛ¾÷ÇÕ´Ï´Ù.
-3. Ä¿¹ÔÇÏ°í, ¿øº»(SELab-IoT/XACML-Server)À¸·ÎºÎÅÍ pull ´ç°Ü¿É´Ï´Ù.
-4. ÀÚ±â fork·Î push ÇÕ´Ï´Ù.
-5. ¿øº»À¸·Î pull request¸¦ º¸³À´Ï´Ù.
+1. ê°ìž Fork ë– ê°‘ë‹ˆë‹¤.
+2. ìž‘ì—…í•©ë‹ˆë‹¤.
+3. ì»¤ë°‹í•˜ê³ , ì›ë³¸(SELab-IoT/XACML-Server)ìœ¼ë¡œë¶€í„° pull ë‹¹ê²¨ì˜µë‹ˆë‹¤.
+4. ìžê¸° forkë¡œ push í•©ë‹ˆë‹¤.
+5. ì›ë³¸ìœ¼ë¡œ pull requestë¥¼ ë³´ëƒ…ë‹ˆë‹¤.
 
-git commit -m "[mm/dd]¼öÁ¤³»¿ë"
+git commit -m "[mm/dd]ìˆ˜ì •ë‚´ìš©"
 git pull origin master
 git push myfork master
 
-* ¹®¼­ÀÛ¾÷Àº document ºê·£Ä¡¿¡¼­ º°µµ·Î ¼öÇàÇÕ´Ï´Ù.
-* IoT DeviceÂÊ °³¹ßÀº º°µµÀÇ ·¹Æ÷ÁöÅÍ¸®¿¡¼­ ÁøÇàÇÕ´Ï´Ù.
+* ë¬¸ì„œìž‘ì—…ì€ IoT-Documents Repositoryì—ì„œ ë³„ë„ë¡œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
+* IoT Deviceìª½ ê°œë°œì€ ë³„ë„ì˜ ë ˆí¬ì§€í„°ë¦¬ì—ì„œ ì§„í–‰í•©ë‹ˆë‹¤.
