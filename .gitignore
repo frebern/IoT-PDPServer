@@ -1,0 +1,12 @@
+# Ignore All
+*
+# White Lists
+!libs
+!libs/*
+!resources
+!resources/*
+!src
+!src/*
+!.gitignore
+!pom.xml
+!README.md
