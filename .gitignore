@@ -1,5 +1,6 @@
 # Ignore All
 *
+*/*
 # White Lists
 !libs
 !libs/*
@@ -7,6 +8,8 @@
 !resources/*
 !src
 !src/*
+!target
+!target/*
 !.gitignore
 !pom.xml
 !README.md
