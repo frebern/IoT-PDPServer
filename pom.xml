@@ -36,16 +36,12 @@
 			</exclusions>
 			<version>1.2</version>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/xerces/xercesImpl -->
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>2.11.0</version>
 		</dependency>
-
 	</dependencies>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -72,7 +68,6 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -82,8 +77,6 @@
 					</includes>
 				</configuration>
 			</plugin>
-			
 		</plugins>
 	</build>
-
 </project>
