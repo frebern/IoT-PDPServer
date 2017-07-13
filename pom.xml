@@ -44,12 +44,14 @@
 		<dependency>
 			<groupId>org.wso2.balana</groupId>
 			<artifactId>balana-core</artifactId>
+			<version>0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/balana-core.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.balana</groupId>
 			<artifactId>balana-util</artifactId>
+			<version>0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/balana-util.jar</systemPath>
 		</dependency>
