@@ -66,6 +66,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<version>1.8</version>
+					<target>1.8</target>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -77,40 +82,7 @@
 					</includes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${pom.artifactId}</Bundle-Name>
-						<Export-Package>
-							org.wso2.balana.*;version=${exp.pkg.version.balana}
-						</Export-Package>
-						<Import-Package>
-							!javax.xml.namespace,
-							javax.xml.namespace;
-							version="${imp.pkg.version.javax.xml}",
-							javax.security.auth.x500,
-							javax.xml.parsers;
-							version="${imp.pkg.version.javax.xml.parsers}",
-							javax.xml.transform; version="${imp.pkg.version.javax.xml}",
-							javax.xml.transform.dom; version="${imp.pkg.version.javax.xml}",
-							javax.xml.transform.stream;
-							version="${imp.pkg.version.javax.xml}",
-							javax.xml.xpath;
-							version="${imp.pkg.version.javax.xml}",
-							org.apache.commons.logging.*;
-							version="${commons-logging.osgi.version.range}",
-							org.wso2.balana.utils;version="${imp.pkg.version.balana}",
-							org.w3c.dom,
-							org.xml.sax
-						</Import-Package>
-						<DynamicImport-Package>*</DynamicImport-Package>
-					</instructions>
-				</configuration>
-			</plugin>
+			
 		</plugins>
 	</build>
 
