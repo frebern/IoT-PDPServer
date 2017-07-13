@@ -1,3 +1,15 @@
-# Ignore Target
-target
-target/*
+# ignore all
+*
+# White list
+!lib
+!lib/*
+!resources
+!resources/*
+!src
+!src/*
+!pom.xml
+!LICENSE
+!README.md
+!.gitignore
+# for eclipse
+!.classpath
