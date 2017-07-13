@@ -8,8 +8,6 @@
 !resources/*
 !src
 !src/*
-!target
-!target/*
 !.gitignore
 !pom.xml
 !README.md
