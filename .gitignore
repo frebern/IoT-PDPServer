@@ -3,13 +3,14 @@
 # White list
 !lib
 !lib/*
+!lib/**
 !resources
 !resources/*
+!resources/**
 !src
 !src/*
+!src/**
 !pom.xml
 !LICENSE
 !README.md
 !.gitignore
-# for eclipse
-!.classpath
