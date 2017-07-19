@@ -1,5 +1,6 @@
 # ignore all
 *
+**
 # White list
 !lib
 !lib/*
