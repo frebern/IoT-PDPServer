@@ -6,10 +6,14 @@ import org.wso2.balana.PDP;
 import org.wso2.balana.PDPConfig;
 import org.wso2.balana.finder.AttributeFinder;
 import org.wso2.balana.finder.AttributeFinderModule;
+import org.wso2.balana.finder.PolicyFinder;
+import org.wso2.balana.finder.ResourceFinder;
+import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
+import org.wso2.balana.finder.impl.SelectorModule;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -18,7 +22,6 @@ import java.util.List;
 public class PDPInterface {
 
     private static PDPInterface pdpInterface;
-    Balana balana;
     PDP pdp;
 
     public static PDPInterface getInstance() {
@@ -28,31 +31,39 @@ public class PDPInterface {
     }
 
     private PDPInterface() {
-        initBalana();
-        pdp = getPDPNewInstance();
     }
 
-    public String evaluate(String request) {
+    public String evaluate(String request, String ...policies) {
+        pdp = getPDPNewInstance(policies);
         return pdp.evaluate(request);
     }
 
-    private void initBalana(){
-        //TODO: Database로 변경 필요
-        try{
-            // using file based policy repository. so set the policy location as system property
-            String sep = File.separator;
-            String policyLocation = (new File(".")).getCanonicalPath() + sep + "resources" + sep + "IntentConflictExamplePolicies";
-            System.setProperty(FileBasedPolicyFinderModule.POLICY_DIR_PROPERTY, policyLocation);
-        } catch (IOException e) {
-            System.err.println("Can not locate policy repository");
+    private PDPConfig createConfig(String ...policies) {
+
+        PolicyFinder policyFinder1 = new PolicyFinder();
+        HashSet policyFinderModules1 = new HashSet();
+        HashSet<String> policyLocations = new HashSet<>();
+        for (String c : policies) {
+            policyLocations.add(c);
         }
-        // create default instance of Balana
-        balana = Balana.getInstance();
+        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
+        policyFinderModules1.add(fileBasedPolicyFinderModule);
+        policyFinder1.setModules(policyFinderModules1);
+        AttributeFinder attributeFinder = new AttributeFinder();
+        ArrayList attributeFinderModules = new ArrayList();
+        SelectorModule selectorModule = new SelectorModule();
+        CurrentEnvModule currentEnvModule = new CurrentEnvModule();
+        attributeFinderModules.add(selectorModule);
+        attributeFinderModules.add(currentEnvModule);
+        attributeFinder.setModules(attributeFinderModules);
+
+        PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder1, (ResourceFinder)null, false);
+        return pdpConfig;
     }
 
-    private PDP getPDPNewInstance(){
+    private PDP getPDPNewInstance(String ...policies){
 
-        PDPConfig pdpConfig = balana.getPdpConfig();
+        PDPConfig pdpConfig = createConfig(policies);
 
         // registering new attribute finder. so default PDPConfig is needed to change
         AttributeFinder attributeFinder = pdpConfig.getAttributeFinder();
@@ -61,4 +72,6 @@ public class PDPInterface {
         attributeFinder.setModules(finderModules);
         return new PDP(new PDPConfig(attributeFinder, pdpConfig.getPolicyFinder(), null, true));
     }
+
+
 }
