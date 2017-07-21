@@ -13,6 +13,7 @@ import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
 import org.wso2.balana.finder.impl.SelectorModule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -24,13 +25,13 @@ public class PDPInterface {
     private static PDPInterface pdpInterface;
     PDP pdp;
 
+    //Thread-safe singleton
     public static PDPInterface getInstance() {
-        if (pdpInterface == null)
-            pdpInterface = new PDPInterface();
-        return pdpInterface;
+        return pdpInterface = Singleton.instance;
     }
-
-    private PDPInterface() {
+    private PDPInterface() {}
+    private static class Singleton{
+        private static final PDPInterface instance = new PDPInterface();
     }
 
     public String evaluate(String request, String ...policies) {
@@ -38,28 +39,6 @@ public class PDPInterface {
         return pdp.evaluate(request);
     }
 
-    private PDPConfig createConfig(String ...policies) {
-
-        PolicyFinder policyFinder1 = new PolicyFinder();
-        HashSet policyFinderModules1 = new HashSet();
-        HashSet<String> policyLocations = new HashSet<>();
-        for (String c : policies) {
-            policyLocations.add(c);
-        }
-        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
-        policyFinderModules1.add(fileBasedPolicyFinderModule);
-        policyFinder1.setModules(policyFinderModules1);
-        AttributeFinder attributeFinder = new AttributeFinder();
-        ArrayList attributeFinderModules = new ArrayList();
-        SelectorModule selectorModule = new SelectorModule();
-        CurrentEnvModule currentEnvModule = new CurrentEnvModule();
-        attributeFinderModules.add(selectorModule);
-        attributeFinderModules.add(currentEnvModule);
-        attributeFinder.setModules(attributeFinderModules);
-
-        PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder1, (ResourceFinder)null, false);
-        return pdpConfig;
-    }
 
     private PDP getPDPNewInstance(String ...policies){
 
@@ -73,5 +52,29 @@ public class PDPInterface {
         return new PDP(new PDPConfig(attributeFinder, pdpConfig.getPolicyFinder(), null, true));
     }
 
+    private PDPConfig createConfig(String ...policies) {
+
+        PolicyFinder policyFinder = new PolicyFinder();
+        HashSet policyFinderModules = new HashSet();
+        HashSet<String> policyLocations = new HashSet<>();
+        policyLocations.addAll(Arrays.asList(policies));
+
+        // Set Policy Finder
+        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
+        policyFinderModules.add(fileBasedPolicyFinderModule);
+        policyFinder.setModules(policyFinderModules);
+
+        // Set Attribute Finder
+        AttributeFinder attributeFinder = new AttributeFinder();
+        ArrayList attributeFinderModules = new ArrayList();
+        SelectorModule selectorModule = new SelectorModule();
+        CurrentEnvModule currentEnvModule = new CurrentEnvModule();
+        attributeFinderModules.add(selectorModule);
+        attributeFinderModules.add(currentEnvModule);
+        attributeFinder.setModules(attributeFinderModules);
+
+        PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder, null, false);
+        return pdpConfig;
+    }
 
 }
