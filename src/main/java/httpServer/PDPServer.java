@@ -18,15 +18,13 @@ public class PDPServer {
     private static PDPServer pdpServer;
     private static PDPInterface pdpInterface = PDPInterface.getInstance();
 
+    // Thread-safe singleton
     public static PDPServer getInstance() {
-        if (pdpServer == null) {
-            pdpServer = new PDPServer();
-        }
-        return pdpServer;
+        return pdpServer = Singleton.instance;
     }
-
-    private PDPServer() {
-
+    private PDPServer() {}
+    private static class Singleton{
+        private static final PDPServer instance = new PDPServer();
     }
 
     public void startServer() throws IOException {
@@ -54,9 +52,17 @@ public class PDPServer {
                     policiesId = inputJson.get("policyId").getAsString();
                 String sep = File.separator;
                 String policies = (new File(".")).getCanonicalPath() + sep + "resources" + sep + "IntentConflictExamplePolicies";
-
                 //TODO: attribute set 을 어떻게 가져올 건지에 대한 고민 필요
                 String response = evaluateRequest(requestBody, policies);
+                httpResponse(httpExchange, response);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void httpResponse(HttpExchange httpExchange, String response){
+            try {
                 if (response != null) {
                     httpExchange.sendResponseHeaders(200, response.getBytes().length);
                     OutputStream os = httpExchange.getResponseBody();
@@ -65,13 +71,9 @@ public class PDPServer {
                 } else {
                     handleError(httpExchange, "Not valid request");
                 }
-
-            } catch (IOException e) {
+            } catch(IOException e) {
                 e.printStackTrace();
             }
-
-
-
         }
 
         private String read(InputStream inputStream) throws IOException {
