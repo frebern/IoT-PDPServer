@@ -1,7 +1,6 @@
 package httpServer;
 
 import IntentConflictExample.SampleAttributeFinderModule;
-import org.wso2.balana.Balana;
 import org.wso2.balana.PDP;
 import org.wso2.balana.PDPConfig;
 import org.wso2.balana.finder.AttributeFinder;
@@ -33,20 +32,16 @@ public class PDPInterface {
     private PDPInterface() {
     }
 
-    public String evaluate(String request, String ...policies) {
+    public String evaluate(String request, HashSet<String> policies) {
         pdp = getPDPNewInstance(policies);
         return pdp.evaluate(request);
     }
 
-    private PDPConfig createConfig(String ...policies) {
+    private PDPConfig createConfig(HashSet<String> policies) {
 
         PolicyFinder policyFinder1 = new PolicyFinder();
         HashSet policyFinderModules1 = new HashSet();
-        HashSet<String> policyLocations = new HashSet<>();
-        for (String c : policies) {
-            policyLocations.add(c);
-        }
-        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
+        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policies);
         policyFinderModules1.add(fileBasedPolicyFinderModule);
         policyFinder1.setModules(policyFinderModules1);
         AttributeFinder attributeFinder = new AttributeFinder();
@@ -61,7 +56,7 @@ public class PDPInterface {
         return pdpConfig;
     }
 
-    private PDP getPDPNewInstance(String ...policies){
+    private PDP getPDPNewInstance(HashSet policies){
 
         PDPConfig pdpConfig = createConfig(policies);
 
