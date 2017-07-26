@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,7 +73,7 @@ public class PDPServer {
 //                String policies = (new File(".")).getCanonicalPath() + sep + "resources" + sep + "IntentConflictExamplePolicies";
 //                policySet.add(policies);
                 //TODO: attribute set 을 어떻게 가져올 건지에 대한 고민 필요
-                String response = evaluateRequest(requestBody, policySet);
+                String response = evaluateRequest(requestBody, pepId);
                 if (response != null) {
                     httpExchange.sendResponseHeaders(200, response.getBytes().length);
                     OutputStream os = httpExchange.getResponseBody();
@@ -131,9 +130,9 @@ public class PDPServer {
         }
 
 
-        private String evaluateRequest(String request, HashSet policySet) {
+        private String evaluateRequest(String request, String pepId) {
             if (request.equals("")) return null;
-            String response = pdpInterface.evaluate(request, policySet);
+            String response = pdpInterface.evaluate(request, pepId);
             return response;
         }
 

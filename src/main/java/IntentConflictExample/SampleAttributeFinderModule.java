@@ -68,24 +68,19 @@ public class SampleAttributeFinderModule extends AttributeFinderModule{
     @Override
     public EvaluationResult findAttribute(URI attributeType, URI attributeId, String issuer,
                                                             URI category, EvaluationCtx context) {
-    	
-//    	System.out.println();
-//    	System.out.println("attributeType: "+attributeType.toString());
-//    	System.out.println("attributeId: "+attributeId.toString());
-//    	System.out.println("issuer: "+issuer);
-//    	System.out.println("category: "+category);
-    	
+
     	
         String roleName = null;
         List<AttributeValue> attributeValues = new ArrayList<AttributeValue>();
-
+        System.out.println(attributeId.toString());
         EvaluationResult result = context.getAttribute(attributeType, defaultSubjectId, issuer, category);
         if(result != null && result.getAttributeValue() != null && result.getAttributeValue().isBag()){
             BagAttribute bagAttribute = (BagAttribute) result.getAttributeValue();
             if(bagAttribute.size() > 0){
                 String userName = ((AttributeValue) bagAttribute.iterator().next()).encode();
-//                System.out.println("userName: "+userName);
                 roleName = findRole(userName);
+                System.out.println("userName: "+userName);
+                System.out.println("roleName: "+roleName);
             }
         }
 
