@@ -1,14 +1,18 @@
 package httpServer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.sql.*;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 /**
  * Created by ohyongtaek on 2017. 7. 18..
@@ -17,12 +21,25 @@ public class PDPServer {
 
     private static PDPServer pdpServer;
     private static PDPInterface pdpInterface = PDPInterface.getInstance();
+    Connection conn;
 
-    // Thread-safe singleton
-    public static PDPServer getInstance() {
+    public static PDPServer getInstance() throws SQLException {
         return pdpServer = Singleton.instance;
     }
-    private PDPServer() {}
+
+
+    // Thread-safe singleton
+
+    private PDPServer()  {
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pdp?autoReconnect=true&useSSL=false&" +
+                        "user=finder&password=asdasd");
+        } catch (SQLException e) {
+            conn = null;
+            e.printStackTrace();
+        }
+    }
+
     private static class Singleton{
         private static final PDPServer instance = new PDPServer();
     }
@@ -30,29 +47,41 @@ public class PDPServer {
     public void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/evaluate", new EvaluateHandler());
+        server.createContext("/create/policy", new TestHandler());
         server.start();
         System.out.println("start PDPServer");
     }
 
-    private static class EvaluateHandler implements HttpHandler {
+    private class EvaluateHandler implements HttpHandler {
 
         Gson gson = new GsonBuilder().create();
 
         @Override
-        public void handle(HttpExchange httpExchange)  {
+        public void handle(HttpExchange httpExchange) {
             InputStream inputStream = httpExchange.getRequestBody();
             String inputString = null;
             try {
                 inputString = read(inputStream);
                 JsonObject inputJson = gson.fromJson(inputString, JsonObject.class);
                 String requestBody = inputJson.get("body").getAsString();
-                //TODO: policiesId 를 이용해 policies 찾는 과정을 고민해야함
+
+                LinkedList<String> attributeCategoryList = new LinkedList<>();
+                if (inputJson.get("attributeList") != null) {
+                    JsonArray attributeArray = inputJson.get("attributeList").getAsJsonArray();
+                    for (JsonElement c : attributeArray) {
+                        String category = c.getAsString();
+                        attributeCategoryList.add(category);
+                    }
+                }
+
                 // 1. json에서 policy id 가져와서(여기 policy id였나 PEP id였나..?)
-                String policiesId = null;
-                if (inputJson.get("policyId") != null)
-                    policiesId = inputJson.get("policyId").getAsString();
+                String pepId = null;
+                if (inputJson.get("pepId") != null)
+                    pepId = inputJson.get("pepId").getAsString();
                 // 2. 해당 경로 DB로 부터 검색해서 가져오고 PDP 호출
+                //TODO: pepId로 설정파일로부터 pdp 객체 가져올지, policy를 pepId로 찾아 pdp를 만들어낼지 결정 필요
                 String response = evaluateRequest(requestBody, getPolicyPathFromId("IntentConflictExamplePolicies"));
+                //String response = evaluateRequest(requestBody, pepId);
                 // 3. 결과 리턴.
                 httpResponse(httpExchange, response);
 
@@ -75,21 +104,52 @@ public class PDPServer {
             return new File(path).exists() ? path : null;
         }
 
-        //
-        private String evaluateRequest(String request, String ...policiesLoc) {
-            if (request.equals("")) return null;
-            String response = pdpInterface.evaluate(request, policiesLoc);
-            return response;
+
+        //DB로 부터 policy 가져오기.
+        private HashSet<String> findPolicies(String pepId) {
+            Statement stmt = null;
+            ResultSet rs = null;
+            String query = "SELECT file_loc FROM pep_policy JOIN pep on pep._id=pep_policy.pep_id JOIN policy on policy._id=pep_policy.policy_id where pep.pep_id='" + pepId+"'";
+            HashSet<String> policies = new HashSet<>();
+            try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery(query);
+                while (rs.next()) {
+                    String fileLoc = rs.getString(1);
+                    policies.add(fileLoc);
+                }
+
+            } catch (SQLException ex) {
+//                System.out.println("SQLException: " + ex.getMessage());
+//                System.out.println("SQLState: " + ex.getSQLState());
+//                System.out.println("VendorError: " + ex.getErrorCode());
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException sqlEx) {
+                    } // ignore
+
+                    rs = null;
+                }
+
+                if (stmt != null) {
+                    try {
+                        stmt.close();
+                    } catch (SQLException sqlEx) {
+                    } // ignore
+
+                    stmt = null;
+                }
+            }
+            return policies;
         }
 
-        private String read(InputStream inputStream) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            byte[] b = new byte[4096];
-            while (inputStream.available() != 0) {
-                int n = inputStream.read(b);
-                sb.append(new String(b, 0, n));
-            }
-            return sb.toString();
+
+        private String evaluateRequest(String request, String pepId) {
+            if (request.equals("")) return null;
+            String response = pdpInterface.evaluate(request, pepId);
+            return response;
         }
 
         private void httpResponse(HttpExchange httpExchange, String response){
@@ -113,6 +173,56 @@ public class PDPServer {
             os.write(errMsg.getBytes());
             os.close();
         }
+    }
+
+    private class TestHandler implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            InputStream inputStream = httpExchange.getRequestBody();
+            String input = read(inputStream);
+
+            createPolicy(input);
+            String response = "OK";
+            httpExchange.sendResponseHeaders(200, response.getBytes().length);
+            OutputStream os = httpExchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+
+        }
+
+        private void createPolicy(String policy_loc) {
+            Statement stmt = null;
+            String query = "INSERT INTO policy (file_loc) values ('" + policy_loc + "')";
+            try {
+                stmt = conn.createStatement();
+                stmt.execute(query);
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            } finally {
+                if (stmt != null) {
+                    try {
+                        stmt.close();
+                    } catch (SQLException sqlEx) {
+                    } // ignore
+
+                    stmt = null;
+                }
+            }
+
+        }
+    }
+
+    public String read(InputStream inputStream) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        byte[] b = new byte[4096];
+        while (inputStream.available() != 0) {
+            int n = inputStream.read(b);
+            sb.append(new String(b, 0, n));
+        }
+        return sb.toString();
     }
 
 
