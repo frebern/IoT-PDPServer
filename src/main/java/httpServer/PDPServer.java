@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,15 +24,24 @@ public class PDPServer {
     Connection conn;
 
     public static PDPServer getInstance() throws SQLException {
-        if (pdpServer == null) {
-            pdpServer = new PDPServer();
-        }
-        return pdpServer;
+        return pdpServer = Singleton.instance;
     }
 
-    private PDPServer() throws SQLException {
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pdp?autoReconnect=true&useSSL=false&" +
-                "user=finder&password=asdasd");
+
+    // Thread-safe singleton
+
+    private PDPServer()  {
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pdp?autoReconnect=true&useSSL=false&" +
+                        "user=finder&password=asdasd");
+        } catch (SQLException e) {
+            conn = null;
+            e.printStackTrace();
+        }
+    }
+
+    private static class Singleton{
+        private static final PDPServer instance = new PDPServer();
     }
 
     public void startServer() throws IOException {
@@ -54,9 +64,7 @@ public class PDPServer {
                 inputString = read(inputStream);
                 JsonObject inputJson = gson.fromJson(inputString, JsonObject.class);
                 String requestBody = inputJson.get("body").getAsString();
-                String pepId = null;
-                if (inputJson.get("pepId") != null)
-                    pepId = inputJson.get("pepId").getAsString();
+
                 LinkedList<String> attributeCategoryList = new LinkedList<>();
                 if (inputJson.get("attributeList") != null) {
                     JsonArray attributeArray = inputJson.get("attributeList").getAsJsonArray();
@@ -66,30 +74,38 @@ public class PDPServer {
                     }
                 }
 
-                //TODO: policiesId 를 이용해 policies 찾는 과정을 고민해야함
-                HashSet<String> policySet = findPolicies(pepId);
-//                HashSet<String> policySet = new HashSet<>();
-//                String sep = File.separator;
-//                String policies = (new File(".")).getCanonicalPath() + sep + "resources" + sep + "IntentConflictExamplePolicies";
-//                policySet.add(policies);
-                //TODO: attribute set 을 어떻게 가져올 건지에 대한 고민 필요
-                String response = evaluateRequest(requestBody, pepId);
-                if (response != null) {
-                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
-                    OutputStream os = httpExchange.getResponseBody();
-                    os.write(response.getBytes());
-                    os.close();
-                } else {
-                    handleError(httpExchange, "Not valid request");
-                }
+                // 1. json에서 policy id 가져와서(여기 policy id였나 PEP id였나..?)
+                String pepId = null;
+                if (inputJson.get("pepId") != null)
+                    pepId = inputJson.get("pepId").getAsString();
+                // 2. 해당 경로 DB로 부터 검색해서 가져오고 PDP 호출
+                //TODO: pepId로 설정파일로부터 pdp 객체 가져올지, policy를 pepId로 찾아 pdp를 만들어낼지 결정 필요
+                String response = evaluateRequest(requestBody, getPolicyPathFromId("IntentConflictExamplePolicies"));
+                //String response = evaluateRequest(requestBody, pepId);
+                // 3. 결과 리턴.
+                httpResponse(httpExchange, response);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         }
 
+        // DB에서 Search 여기 현재 미구현상태.
+        private String getPolicyPathFromId(String policiesId) throws IOException{
+            return getPolicyPathFromName("IntentConflictExapmle");
+        }
+
+        // 우선 ./resources/를 Base 디렉토리로 설정.
+        private String getPolicyPathFromName(String dirName) throws IOException{
+            final String BASE = "resources";
+            final String SEP = File.separator;
+            // ./resources/{dirName}
+            String path = (new File(".")).getCanonicalPath() + SEP + BASE + SEP + dirName;
+            return new File(path).exists() ? path : null;
+        }
+
+
+        //DB로 부터 policy 가져오기.
         private HashSet<String> findPolicies(String pepId) {
             Statement stmt = null;
             ResultSet rs = null;
@@ -134,6 +150,21 @@ public class PDPServer {
             if (request.equals("")) return null;
             String response = pdpInterface.evaluate(request, pepId);
             return response;
+        }
+
+        private void httpResponse(HttpExchange httpExchange, String response){
+            try {
+                if (response != null) {
+                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                    OutputStream os = httpExchange.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                } else {
+                    handleError(httpExchange, "Not valid request");
+                }
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
         }
 
         public void handleError(HttpExchange httpExchange, String errMsg) throws IOException {

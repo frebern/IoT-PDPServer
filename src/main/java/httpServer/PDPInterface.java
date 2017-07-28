@@ -1,9 +1,20 @@
 package httpServer;
 
+import IntentConflictExample.SampleAttributeFinderModule;
 import org.wso2.balana.*;
+import org.wso2.balana.finder.AttributeFinder;
+import org.wso2.balana.finder.AttributeFinderModule;
+import org.wso2.balana.finder.PolicyFinder;
+import org.wso2.balana.finder.impl.CurrentEnvModule;
+import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
+import org.wso2.balana.finder.impl.SelectorModule;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by ohyongtaek on 2017. 7. 18..
@@ -14,14 +25,14 @@ public class PDPInterface {
     PDP pdp;
     Balana balana;
 
+    //Thread-safe singleton
     public static PDPInterface getInstance() {
-        if (pdpInterface == null)
-            pdpInterface = new PDPInterface();
-        return pdpInterface;
+        return pdpInterface = Singleton.instance;
     }
 
-    private PDPInterface() {
-        initBalana();
+    private PDPInterface() {}
+    private static class Singleton{
+        private static final PDPInterface instance = new PDPInterface();
     }
 
     public String evaluate(String request, String pepId) {
@@ -105,4 +116,28 @@ public class PDPInterface {
     }
 
 
+    private PDPConfig createConfig(String ...policies) {
+
+        PolicyFinder policyFinder = new PolicyFinder();
+        HashSet policyFinderModules = new HashSet();
+        HashSet<String> policyLocations = new HashSet<>();
+        policyLocations.addAll(Arrays.asList(policies));
+
+        // Set Policy Finder
+        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
+        policyFinderModules.add(fileBasedPolicyFinderModule);
+        policyFinder.setModules(policyFinderModules);
+
+        // Set Attribute Finder
+        AttributeFinder attributeFinder = new AttributeFinder();
+        ArrayList attributeFinderModules = new ArrayList();
+        SelectorModule selectorModule = new SelectorModule();
+        CurrentEnvModule currentEnvModule = new CurrentEnvModule();
+        attributeFinderModules.add(selectorModule);
+        attributeFinderModules.add(currentEnvModule);
+        attributeFinder.setModules(attributeFinderModules);
+
+        PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder, null, false);
+        return pdpConfig;
+    }
 }
