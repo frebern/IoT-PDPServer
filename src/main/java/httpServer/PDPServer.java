@@ -5,13 +5,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.sql.*;
-import java.util.HashSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 
 /**
@@ -21,9 +19,8 @@ public class PDPServer {
 
     private static PDPServer pdpServer;
     private static PDPInterface pdpInterface = PDPInterface.getInstance();
-    Connection conn;
 
-    public static PDPServer getInstance() throws SQLException {
+    public static PDPServer getInstance() {
         return pdpServer = Singleton.instance;
     }
 
@@ -31,13 +28,6 @@ public class PDPServer {
     // Thread-safe singleton
 
     private PDPServer()  {
-        try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pdp?autoReconnect=true&useSSL=false&" +
-                        "user=finder&password=asdasd");
-        } catch (SQLException e) {
-            conn = null;
-            e.printStackTrace();
-        }
     }
 
     private static class Singleton{
@@ -47,7 +37,6 @@ public class PDPServer {
     public void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/evaluate", new EvaluateHandler());
-        server.createContext("/create/policy", new TestHandler());
         server.start();
         System.out.println("start PDPServer");
     }
@@ -78,10 +67,10 @@ public class PDPServer {
                 String pepId = null;
                 if (inputJson.get("pepId") != null)
                     pepId = inputJson.get("pepId").getAsString();
+
                 // 2. 해당 경로 DB로 부터 검색해서 가져오고 PDP 호출
-                //TODO: pepId로 설정파일로부터 pdp 객체 가져올지, policy를 pepId로 찾아 pdp를 만들어낼지 결정 필요
-                String response = evaluateRequest(requestBody, getPolicyPathFromId("IntentConflictExamplePolicies"));
-                //String response = evaluateRequest(requestBody, pepId);
+                String response = evaluateRequest(requestBody, pepId);
+
                 // 3. 결과 리턴.
                 httpResponse(httpExchange, response);
 
@@ -90,66 +79,9 @@ public class PDPServer {
             }
         }
 
-        // DB에서 Search 여기 현재 미구현상태.
-        private String getPolicyPathFromId(String policiesId) throws IOException{
-            return getPolicyPathFromName("IntentConflictExapmle");
-        }
-
-        // 우선 ./resources/를 Base 디렉토리로 설정.
-        private String getPolicyPathFromName(String dirName) throws IOException{
-            final String BASE = "resources";
-            final String SEP = File.separator;
-            // ./resources/{dirName}
-            String path = (new File(".")).getCanonicalPath() + SEP + BASE + SEP + dirName;
-            return new File(path).exists() ? path : null;
-        }
-
-
-        //DB로 부터 policy 가져오기.
-        private HashSet<String> findPolicies(String pepId) {
-            Statement stmt = null;
-            ResultSet rs = null;
-            String query = "SELECT file_loc FROM pep_policy JOIN pep on pep._id=pep_policy.pep_id JOIN policy on policy._id=pep_policy.policy_id where pep.pep_id='" + pepId+"'";
-            HashSet<String> policies = new HashSet<>();
-            try {
-                stmt = conn.createStatement();
-                rs = stmt.executeQuery(query);
-                while (rs.next()) {
-                    String fileLoc = rs.getString(1);
-                    policies.add(fileLoc);
-                }
-
-            } catch (SQLException ex) {
-//                System.out.println("SQLException: " + ex.getMessage());
-//                System.out.println("SQLState: " + ex.getSQLState());
-//                System.out.println("VendorError: " + ex.getErrorCode());
-            } finally {
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException sqlEx) {
-                    } // ignore
-
-                    rs = null;
-                }
-
-                if (stmt != null) {
-                    try {
-                        stmt.close();
-                    } catch (SQLException sqlEx) {
-                    } // ignore
-
-                    stmt = null;
-                }
-            }
-            return policies;
-        }
-
 
         private String evaluateRequest(String request, String pepId) {
-            if (request.equals("")) return null;
-            String response = pdpInterface.evaluate(request, pepId);
-            return response;
+            return request.isEmpty() ? null : pdpInterface.evaluate(request, pepId);
         }
 
         private void httpResponse(HttpExchange httpExchange, String response){
@@ -175,45 +107,6 @@ public class PDPServer {
         }
     }
 
-    private class TestHandler implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            InputStream inputStream = httpExchange.getRequestBody();
-            String input = read(inputStream);
-
-            createPolicy(input);
-            String response = "OK";
-            httpExchange.sendResponseHeaders(200, response.getBytes().length);
-            OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-
-        }
-
-        private void createPolicy(String policy_loc) {
-            Statement stmt = null;
-            String query = "INSERT INTO policy (file_loc) values ('" + policy_loc + "')";
-            try {
-                stmt = conn.createStatement();
-                stmt.execute(query);
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("VendorError: " + ex.getErrorCode());
-            } finally {
-                if (stmt != null) {
-                    try {
-                        stmt.close();
-                    } catch (SQLException sqlEx) {
-                    } // ignore
-
-                    stmt = null;
-                }
-            }
-
-        }
-    }
 
     public String read(InputStream inputStream) throws IOException {
         StringBuffer sb = new StringBuffer();

@@ -3,7 +3,6 @@
     <pdp name="pdp">
         <attributeFinderModule class="org.wso2.balana.finder.impl.CurrentEnvModule"/>
         <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
-        <attributeFinderModule class="IntentConflictExample.SampleAttributeFinderModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
                 <string>/Users/ohyongtaek/IoT-PDPServer/resources/IntentConflictExamplePolicies</string>
@@ -13,7 +12,6 @@
     <pdp name="mypdp">
         <attributeFinderModule class="org.wso2.balana.finder.impl.CurrentEnvModule"/>
         <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
-        <attributeFinderModule class="IntentConflictExample.SampleAttributeFinderModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
                 <string>/Users/ohyongtaek/IoT-PDPServer/resources/IntentConflictExamplePolicies</string>
