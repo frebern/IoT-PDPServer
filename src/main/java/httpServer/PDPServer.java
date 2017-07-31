@@ -29,7 +29,6 @@ public class PDPServer {
 
 
     // Thread-safe singleton
-
     private PDPServer()  {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pdp?autoReconnect=true&useSSL=false&" +
