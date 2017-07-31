@@ -1,9 +1,7 @@
 package httpServer;
 
-import IntentConflictExample.SampleAttributeFinderModule;
 import org.wso2.balana.*;
 import org.wso2.balana.finder.AttributeFinder;
-import org.wso2.balana.finder.AttributeFinderModule;
 import org.wso2.balana.finder.PolicyFinder;
 import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
@@ -14,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by ohyongtaek on 2017. 7. 18..
@@ -30,7 +27,9 @@ public class PDPInterface {
         return pdpInterface = Singleton.instance;
     }
 
-    private PDPInterface() {}
+    private PDPInterface() {
+        initBalana();
+    }
     private static class Singleton{
         private static final PDPInterface instance = new PDPInterface();
     }
@@ -42,8 +41,7 @@ public class PDPInterface {
 
 
     private PDP getPDPNewInstance(String pepId) {
-
-        reloadBalana(pepId,null,null);
+        reloadBalana(pepId, null, null);
         PDPConfig pdpConfig = balana.getPdpConfig();
         return new PDP(pdpConfig);
     }
