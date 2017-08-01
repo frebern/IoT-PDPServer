@@ -40,12 +40,16 @@ public class PDPServer {
 
         @Override
         public void handle(HttpExchange httpExchange) {
+
             InputStream inputStream = httpExchange.getRequestBody();
             String inputString;
             try {
                 inputString = read(inputStream);
                 JsonObject inputJson = gson.fromJson(inputString, JsonObject.class);
                 String requestBody = inputJson.get("body").getAsString();
+
+                // Debug Observer
+                System.out.println("Request: " + inputString);
 
                 @Deprecated
                 /*
