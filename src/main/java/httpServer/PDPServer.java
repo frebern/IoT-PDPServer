@@ -1,14 +1,16 @@
 package httpServer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.sql.SQLException;
+import java.util.LinkedList;
 
 /**
  * Created by ohyongtaek on 2017. 7. 18..
@@ -18,11 +20,16 @@ public class PDPServer {
     private static PDPServer pdpServer;
     private static PDPInterface pdpInterface = PDPInterface.getInstance();
 
-    // Thread-safe singleton
     public static PDPServer getInstance() {
         return pdpServer = Singleton.instance;
     }
-    private PDPServer() {}
+
+
+    // Thread-safe singleton
+
+    private PDPServer()  {
+    }
+
     private static class Singleton{
         private static final PDPServer instance = new PDPServer();
     }
@@ -34,25 +41,36 @@ public class PDPServer {
         System.out.println("start PDPServer");
     }
 
-    private static class EvaluateHandler implements HttpHandler {
+    private class EvaluateHandler implements HttpHandler {
 
         Gson gson = new GsonBuilder().create();
 
         @Override
-        public void handle(HttpExchange httpExchange)  {
+        public void handle(HttpExchange httpExchange) {
             InputStream inputStream = httpExchange.getRequestBody();
             String inputString = null;
             try {
                 inputString = read(inputStream);
                 JsonObject inputJson = gson.fromJson(inputString, JsonObject.class);
                 String requestBody = inputJson.get("body").getAsString();
-                //TODO: policiesId 를 이용해 policies 찾는 과정을 고민해야함
+
+                LinkedList<String> attributeCategoryList = new LinkedList<>();
+                if (inputJson.get("attributeList") != null) {
+                    JsonArray attributeArray = inputJson.get("attributeList").getAsJsonArray();
+                    for (JsonElement c : attributeArray) {
+                        String category = c.getAsString();
+                        attributeCategoryList.add(category);
+                    }
+                }
+
                 // 1. json에서 policy id 가져와서(여기 policy id였나 PEP id였나..?)
-                String policiesId = null;
-                if (inputJson.get("policyId") != null)
-                    policiesId = inputJson.get("policyId").getAsString();
+                String pepId = null;
+                if (inputJson.get("pepId") != null)
+                    pepId = inputJson.get("pepId").getAsString();
+
                 // 2. 해당 경로 DB로 부터 검색해서 가져오고 PDP 호출
-                String response = evaluateRequest(requestBody, getPolicyPathFromId("IntentConflictExamplePolicies"));
+                String response = evaluateRequest(requestBody, pepId);
+
                 // 3. 결과 리턴.
                 httpResponse(httpExchange, response);
 
@@ -61,35 +79,9 @@ public class PDPServer {
             }
         }
 
-        // DB에서 Search 여기 현재 미구현상태.
-        private String getPolicyPathFromId(String policiesId) throws IOException{
-            return getPolicyPathFromName("IntentConflictExapmle");
-        }
 
-        // 우선 ./resources/를 Base 디렉토리로 설정.
-        private String getPolicyPathFromName(String dirName) throws IOException{
-            final String BASE = "resources";
-            final String SEP = File.separator;
-            // ./resources/{dirName}
-            String path = (new File(".")).getCanonicalPath() + SEP + BASE + SEP + dirName;
-            return new File(path).exists() ? path : null;
-        }
-
-        //
-        private String evaluateRequest(String request, String ...policiesLoc) {
-            if (request.equals("")) return null;
-            String response = pdpInterface.evaluate(request, policiesLoc);
-            return response;
-        }
-
-        private String read(InputStream inputStream) throws IOException {
-            StringBuffer sb = new StringBuffer();
-            byte[] b = new byte[4096];
-            while (inputStream.available() != 0) {
-                int n = inputStream.read(b);
-                sb.append(new String(b, 0, n));
-            }
-            return sb.toString();
+        private String evaluateRequest(String request, String pepId) {
+            return request.isEmpty() ? null : pdpInterface.evaluate(request, pepId);
         }
 
         private void httpResponse(HttpExchange httpExchange, String response){
@@ -113,6 +105,17 @@ public class PDPServer {
             os.write(errMsg.getBytes());
             os.close();
         }
+    }
+
+
+    public String read(InputStream inputStream) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        byte[] b = new byte[4096];
+        while (inputStream.available() != 0) {
+            int n = inputStream.read(b);
+            sb.append(new String(b, 0, n));
+        }
+        return sb.toString();
     }
 
 
