@@ -5,7 +5,7 @@
         <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
-                <string>/Users/ohyongtaek/IoT-PDPServer/resources/IntentConflictExamplePolicies</string>
+                <string>resources/IntentConflictExamplePolicies</string>
             </set>
         </policyFinderModule>
     </pdp>
@@ -14,7 +14,7 @@
         <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
-                <string>/Users/ohyongtaek/IoT-PDPServer/resources/IntentConflictExamplePolicies</string>
+                <string>resources/IntentConflictExamplePolicies</string>
             </set>
         </policyFinderModule>
     </pdp>
