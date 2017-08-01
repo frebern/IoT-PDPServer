@@ -89,40 +89,13 @@ public class PDPInterface {
     }
 
     private void initBalana(){
-        try {
-            String configLocation = (new File(".")).getCanonicalPath() + File.separator + "resources/config.xml";
-            System.setProperty(ConfigurationStore.PDP_CONFIG_PROPERTY, configLocation);
-        } catch (IOException e) {
-            System.err.println("Can not locate policy repository");
-        }
-        // create default instance of Balana
+        // Set balana config file.
+        String configLocation = "resources"+File.separator+"config.xml";
+        System.setProperty(ConfigurationStore.PDP_CONFIG_PROPERTY, configLocation);
+
+        // Create default instance of Balana
         balana = Balana.getInstance();
     }
 
-    // 여기 필요함?
-    private PDPConfig createConfig(String ...policies) {
-
-        PolicyFinder policyFinder = new PolicyFinder();
-        HashSet policyFinderModules = new HashSet();
-        HashSet<String> policyLocations = new HashSet<>();
-        policyLocations.addAll(Arrays.asList(policies));
-
-        // Set Policy Finder
-        FileBasedPolicyFinderModule fileBasedPolicyFinderModule = new FileBasedPolicyFinderModule(policyLocations);
-        policyFinderModules.add(fileBasedPolicyFinderModule);
-        policyFinder.setModules(policyFinderModules);
-
-        // Set Attribute Finder
-        AttributeFinder attributeFinder = new AttributeFinder();
-        ArrayList attributeFinderModules = new ArrayList();
-        SelectorModule selectorModule = new SelectorModule();
-        CurrentEnvModule currentEnvModule = new CurrentEnvModule();
-        attributeFinderModules.add(selectorModule);
-        attributeFinderModules.add(currentEnvModule);
-        attributeFinder.setModules(attributeFinderModules);
-
-        PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder, null, false);
-        return pdpConfig;
-    }
 
 }

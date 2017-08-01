@@ -52,14 +52,14 @@ public class PDPServer {
                 System.out.println("Request: " + inputString);
 
                 @Deprecated
-                /*
-                LinkedList<String> attributeCategoryList = new LinkedList<>();
+                /*LinkedList<String> attributeCategoryList = new LinkedList<>();
                 if (inputJson.get("attributeList") != null) {
                     JsonArray attributeArray = inputJson.get("attributeList").getAsJsonArray();
                     StreamSupport.stream(attributeArray.spliterator(), false)
                                  .map(JsonElement::getAsString)
                                  .forEach(attributeCategoryList::add);
                 }*/
+
 
                 // 1. JSON 에서 PEP ID 가져옴
                 String pepId = null;
