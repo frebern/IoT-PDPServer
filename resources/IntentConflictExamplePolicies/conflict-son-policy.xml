@@ -4,7 +4,7 @@
 			<AllOf>
 				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
 					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">son</AttributeValue>
-					<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+					<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
 				</Match>
 				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
 					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">car</AttributeValue>
@@ -12,6 +12,12 @@
 				</Match>
 			</AllOf>
 		</AnyOf>
+		<Subjects>
+			<Attribute AttributeID="http://selab.hanayng.ac.kr/id/role"
+					   DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>son</AttributeValue>
+			</Attribute>
+		</Subjects>
 	</Target>
 	<Rule Effect="Deny" RuleId="start-car-time">
 		<Condition>
