@@ -9,12 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.sql.SQLException;
-import java.util.LinkedList;
 
-/**
- * Created by ohyongtaek on 2017. 7. 18..
- */
 public class PDPServer {
 
     private static PDPServer pdpServer;
@@ -24,22 +19,21 @@ public class PDPServer {
         return pdpServer = Singleton.instance;
     }
 
-
     // Thread-safe singleton
-    private PDPServer()  {
-    }
-
+    private PDPServer() {}
     private static class Singleton{
         private static final PDPServer instance = new PDPServer();
     }
 
+    // Start HTTP Server
     public void startServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/evaluate", new EvaluateHandler());
         server.start();
-        System.out.println("start PDPServer");
+        System.out.println("Start PDPServer");
     }
 
+    // Handler for http://~~~~/evaluate
     private class EvaluateHandler implements HttpHandler {
 
         Gson gson = new GsonBuilder().create();
@@ -47,65 +41,59 @@ public class PDPServer {
         @Override
         public void handle(HttpExchange httpExchange) {
             InputStream inputStream = httpExchange.getRequestBody();
-            String inputString = null;
+            String inputString;
             try {
                 inputString = read(inputStream);
                 JsonObject inputJson = gson.fromJson(inputString, JsonObject.class);
                 String requestBody = inputJson.get("body").getAsString();
 
+                @Deprecated
+                /*
                 LinkedList<String> attributeCategoryList = new LinkedList<>();
                 if (inputJson.get("attributeList") != null) {
                     JsonArray attributeArray = inputJson.get("attributeList").getAsJsonArray();
-                    for (JsonElement c : attributeArray) {
-                        String category = c.getAsString();
-                        attributeCategoryList.add(category);
-                    }
-                }
+                    StreamSupport.stream(attributeArray.spliterator(), false)
+                                 .map(JsonElement::getAsString)
+                                 .forEach(attributeCategoryList::add);
+                }*/
 
-                // 1. json에서 policy id 가져와서(여기 policy id였나 PEP id였나..?)
+                // 1. JSON 에서 PEP ID 가져옴
                 String pepId = null;
                 if (inputJson.get("pepId") != null)
                     pepId = inputJson.get("pepId").getAsString();
 
-                // 2. 해당 경로 DB로 부터 검색해서 가져오고 PDP 호출
+                // 2. PEP ID를 통해 config.xml 에서 pdp 설정을 선택하고
+                // 해당 설정의 PDP를 생성하고 XACML 리퀘스트를 보냄
                 String response = evaluateRequest(requestBody, pepId);
 
-                // 3. 결과 리턴.
-                httpResponse(httpExchange, response);
+                //2.1. Error Handling
+                if(response == null)
+                    httpResponse(400, httpExchange, "Invalid Request");
+
+                // 3. Return XACML Response
+                httpResponse(200, httpExchange, response);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-
         private String evaluateRequest(String request, String pepId) {
-            return request.isEmpty() ? null : pdpInterface.evaluate(request, pepId);
+            return !(request.isEmpty() || request==null) ? pdpInterface.evaluate(request, pepId) : null;
         }
 
-        private void httpResponse(HttpExchange httpExchange, String response){
+        private void httpResponse(int code, HttpExchange httpExchange, String response){
             try {
-                if (response != null) {
-                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
-                    OutputStream os = httpExchange.getResponseBody();
-                    os.write(response.getBytes());
-                    os.close();
-                } else {
-                    handleError(httpExchange, "Not valid request");
-                }
+                httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream os = httpExchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
             } catch(IOException e) {
                 e.printStackTrace();
             }
         }
 
-        public void handleError(HttpExchange httpExchange, String errMsg) throws IOException {
-            httpExchange.sendResponseHeaders(200, errMsg.getBytes().length);
-            OutputStream os = httpExchange.getResponseBody();
-            os.write(errMsg.getBytes());
-            os.close();
-        }
     }
-
 
     public String read(InputStream inputStream) throws IOException {
         StringBuffer sb = new StringBuffer();
@@ -116,6 +104,5 @@ public class PDPServer {
         }
         return sb.toString();
     }
-
 
 }
