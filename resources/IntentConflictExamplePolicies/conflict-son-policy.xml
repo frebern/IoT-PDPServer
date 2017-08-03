@@ -4,7 +4,7 @@
 			<AllOf>
 				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
 					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">son</AttributeValue>
-					<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+					<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
 				</Match>
 				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
 					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">car</AttributeValue>
@@ -12,12 +12,6 @@
 				</Match>
 			</AllOf>
 		</AnyOf>
-		<Subjects>
-			<Attribute AttributeID="http://selab.hanayng.ac.kr/id/role"
-					   DataType="http://www.w3.org/2001/XMLSchema#string">
-				<AttributeValue>son</AttributeValue>
-			</Attribute>
-		</Subjects>
 	</Target>
 	<Rule Effect="Deny" RuleId="start-car-time">
 		<Condition>
@@ -42,13 +36,13 @@
 					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Deny: Son can start car only between 9 and 16 o'clock.</AttributeValue>
 				</AttributeAssignmentExpression>
 			</AdviceExpression>
-		</AdviceExpressions>	
+		</AdviceExpressions>
 	</Rule>
 	<Rule Effect="Deny" RuleId="parent-assist">
 		<Condition>
 			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
 				<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">fred</AttributeValue>
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">father</AttributeValue>
 					<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
 						<AttributeDesignator AttributeId="http://selab.hanyang.ac.kr/id/assist" Category="http://selab.hanyang.ac.kr/category" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
 					</Apply>

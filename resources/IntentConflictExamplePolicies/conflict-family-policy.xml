@@ -1,14 +1,8 @@
 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ConflictFamilyPolicy"
-        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides" Version="1.0">
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit" Version="1.0">
     <Target>
         <AnyOf>
             <AllOf>
-                <!--<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">-->
-                    <!--<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">family</AttributeValue>-->
-                    <!--<AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role"-->
-                                         <!--Category="http://selab.hanayng.ac.kr/category"-->
-                                         <!--DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>-->
-                <!--</Match>-->
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">car</AttributeValue>
                     <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
@@ -17,14 +11,16 @@
                 </Match>
             </AllOf>
         </AnyOf>
-        <Subjects>
-            <Attribute AttributeID="http://selab.hanayng.ac.kr/id/role"
-                       DataType="http://www.w3.org/2001/XMLSchema#string">
-                <AttributeValue>family</AttributeValue>
-            </Attribute>
-        </Subjects>
     </Target>
     <Rule RuleId="permit-rule" Effect="Permit">
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">family</AttributeValue>
+                <AttributeDesignator AttributeId="http://selab.hanayng.ac.kr/id/role"
+                                     Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                                     DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+            </Apply>
+        </Condition>
         <AdviceExpressions>
             <AdviceExpression AdviceId="permit-time-range-advice2" AppliesTo="Permit">
                 <AttributeAssignmentExpression AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text">
