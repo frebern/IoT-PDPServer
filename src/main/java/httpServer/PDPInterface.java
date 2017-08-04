@@ -4,17 +4,8 @@ import org.wso2.balana.*;
 import org.wso2.balana.attr.AttributeFactory;
 import org.wso2.balana.combine.CombiningAlgFactory;
 import org.wso2.balana.cond.FunctionFactoryProxy;
-import org.wso2.balana.finder.AttributeFinder;
-import org.wso2.balana.finder.PolicyFinder;
-import org.wso2.balana.finder.impl.CurrentEnvModule;
-import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
-import org.wso2.balana.finder.impl.SelectorModule;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 
 public class PDPInterface {
 

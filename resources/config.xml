@@ -1,8 +1,6 @@
 <config defaultPDP="pdp" defaultAttributeFactory="attr"
         defaultCombiningAlgFactory="comb" defaultFunctionFactory="func">
     <pdp name="pdp">
-        <attributeFinderModule class="org.wso2.balana.finder.impl.CurrentEnvModule"/>
-        <attributeFinderModule class="org.wso2.balana.finder.impl.SelectorModule"/>
         <policyFinderModule class="org.wso2.balana.finder.impl.FileBasedPolicyFinderModule">
             <set>
                 <string>resources/IntentConflictExamplePolicies</string>
@@ -21,6 +19,7 @@
 
     <attributeFactory name="attr" useStandardDatatypes="true"/>
     <functionFactory name="func" useStandardFunctions="true"/>
-    <combiningAlgFactory name="comb" useStandardAlgorithms="true"></combiningAlgFactory>
+    <combiningAlgFactory name="comb" useStandardAlgorithms="true"/>
 
 </config>
+
